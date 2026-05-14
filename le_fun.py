@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.integrate import cumulative_trapezoid as cumtrapz
+import matplotlib.pyplot as plt
 
 def le_derivatives(xi, Y, n):
     """
@@ -73,3 +75,46 @@ def le_analytical(xi, n):
         return np.sin(xi) / xi
     elif n == 5:
         return (1 + (xi**2 / 3))**(-0.5)
+    
+
+def getpoly(n,N=int(1e4), G=1, imax=1e4,tolerance = 1.e-19,show=False): 
+    ''' Getpoly(n,,N=1e4, G=1, imax=1e4,tolerance = 1.e-19) returns (r,rho,m,P) for a self-consistent polytrope 
+    with total mass and radius M=R=1.  Scale according to rho ~ M/R^3 and P ~ GM^2/R^4. ''' 
+    r = np.linspace(1.e-10/N,1,N) 
+    rho = r.copy()*0.+4*np.pi/3;  
+    rhoprev = rho +0.1
+    
+    keepgoing = 1 
+    i = 0 
+    while keepgoing: 
+        m = cumtrapz(4*np.pi*r**2*rho,r,initial=0) # Could switch to Simpson interator for even greater accuracy
+
+        mmax = np.max(m) ## normalize density and mass to unit mass. 
+        rho = rho/mmax
+        m = m/mmax
+
+        w = ~np.isnan(rho/rhoprev) # necessary because the last value of rho is zero. 
+        error = np.max(np.abs(rho[w]/rhoprev[w]-1))
+        keepgoing = (error > tolerance)*(i<imax)
+
+        if show: 
+            plt.figure(2)
+            if i: plt.plot(r,rhoprev,'r',r,rho,'k')
+
+        g = -G*m/r**2
+        Phi = cumtrapz(-g, r,initial=0)
+        rhoprev = rho 
+        rho = (np.max(Phi)-Phi)**n
+        i +=1
+    m = cumtrapz(4*np.pi*r**2*rho,r,initial=0) # Could switch to Simpson interator for even greater accuracy
+    mmax = np.max(m) ## normalize density and mass to unit mass. 
+    rho = rho/mmax
+    m = m/mmax
+
+    P = rho**(1.+1./n) ## un-normalized pressure profile. 
+    # Normalize the pressure: 
+    Egrav = np.trapezoid(G*m/r * rho *4*np.pi*r**2,r)
+    TwoEtherm = 3*np.trapezoid(P*4*np.pi*r**2, r)
+    P = P*Egrav/TwoEtherm ## enforce virial equilibrium: |E_grav| = 2 E_therm 
+    
+    return r,rho,m, P
