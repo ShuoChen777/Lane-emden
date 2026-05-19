@@ -312,14 +312,14 @@ The solutions for other values of $n$ were then generated, shown in Figure \ref{
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.9\linewidth]{varn_residual.png}
+    \includegraphics[width=0.8\linewidth]{varn_residual.png}
     \caption{(top) Raw values of numerical values of $\xi_1$ compared to actual known values. $-1$ was given to $n=5$ as the solution diverges. (bottom) Error of $\xi_1$ between real and numerical solutions. $n=0.5$ gives an error of order $10^0$, whereas other values of $n$ return errors $<10^{-4}$}
     \label{fig:varn_res}
 \end{figure}
 
 \newpage
 
-The argument `max\_step' in the solve\_ivp function was crucial in reducing error. A smaller maximum step led to lower deviation from the true value of $\xi_1$. Figure \ref{fig:good_bad_res} shows the comparison between a solution where the maximum step was not defined and one that had a definite maximum step. Note that the error for $n=1$ is different than that of Figure \ref{fig:varn_res}. We do not know why the program generated different values for $\xi_1$ for different runs.
+The argument `max\_step' in the solve\_ivp function was crucial in reducing error. A smaller maximum step led to lower deviation from the true value of $\xi_1$. Figure \ref{fig:good_bad_res} shows the comparison between a solution where the maximum step was not defined and one that had a definite maximum step. Note that the errors for $n=0,1$ are different than that of Figure \ref{fig:varn_res}. This is because the residuals in Figure \ref{fig:good_bad_res} compared the numerical solutions to values of $\xi_1$ with finite significant figures, which are accurate up to order $10^{-5}$, whereas Figure \ref{fig:varn_res} uses the analytical values of $\xi_1$ for $n=0$ and $n=1$ to compare with the numerical methods.
 
 \begin{figure}[ht!]
     \centering
